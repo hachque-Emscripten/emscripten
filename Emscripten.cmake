@@ -7,7 +7,10 @@
 # project correctly.
 #
 
-set(EMSCRIPTEN_ACTIVE true)
+set(EMSCRIPTEN_ACTIVE true CACHE INTERNAL "Emscripten is active." FORCE)
+
+set(ENV{CC} "$ENV{EMSCRIPTEN_ROOT}/emcc")
+set(ENV{CXX} "$ENV{EMSCRIPTEN_ROOT}/em++")
 
 set(CMAKE_C_COMPILER "$ENV{EMSCRIPTEN_ROOT}/emcc")
 set(CMAKE_C_FLAGS "-Wall -std=c89")
