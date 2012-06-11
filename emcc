@@ -224,6 +224,10 @@ Options that are modified or new in %s include:
                            If a directory is passed here, its entire
                            contents will be preloaded.
 
+  --base-dir <path>        The base path to be used when preloading or
+                           embedding files with --embed-file and
+                           --preload-file.
+
   --compression <codec>    Compress both the compiled code and embedded/
                            preloaded files. <codec> should be a triple,
 
@@ -503,6 +507,11 @@ try:
     elif newargs[i].startswith('--preload-file'):
       check_bad_eq(newargs[i])
       data_files.append({ 'name': newargs[i+1], 'mode': 'preload' })
+      newargs[i] = ''
+      newargs[i+1] = ''
+    elif newargs[i].startswith('--base-dir'):
+      check_bad_eq(newargs[i])
+      data_base = newargs[i+1]
       newargs[i] = ''
       newargs[i+1] = ''
     elif newargs[i].startswith('--compression'):
@@ -899,8 +908,12 @@ try:
         if not os.path.isdir(fullname):
           data_files.append({ 'name': fullname, 'mode': mode })
 
+    # Needs to be fixed properly :/
+    basedir = data_base or ''
+
     for file_ in data_files:
       if os.path.isdir(file_['name']):
+        basedir = file_['name']
         os.path.walk(file_['name'], add, file_['mode'])
     data_files = filter(lambda file_: not os.path.isdir(file_['name']), data_files)
 
@@ -913,7 +926,7 @@ try:
     # Set up folders
     partial_dirs = []
     for file_ in data_files:
-      dirname = os.path.dirname(file_['name'])
+      dirname = os.path.dirname(file_['name'][len(basedir)+1:])
       dirname = dirname.lstrip('/') # absolute paths start with '/', remove that
       if dirname != '':
         parts = dirname.split('/')
@@ -1038,10 +1051,11 @@ try:
             'varname': varname,
             'filename': filename,
             'netname': file_['net_name'],
-            'dirname': os.path.dirname(filename),
+            'dirname': os.path.dirname(filename[len(basedir)+1:]),
             'basename': os.path.basename(filename),
             'finish': finish
       }
+        print dirname
       else:
         assert 0
 
@@ -1131,14 +1145,16 @@ try:
     flush_js_optimizer_queue()
 
     if DEBUG: print >> sys.stderr, 'emcc: running variable eliminator'
-    final = shared.Building.eliminator(final)
+    # This doesn't work at any level :/
+    #final = shared.Building.eliminator(final)
     if DEBUG: save_intermediate('eliminator')
 
     js_optimizer_queue += ['simplifyExpressionsPre']
     if shared.Settings.RELOOP:
       js_optimizer_queue += ['optimizeShiftsAggressive'] # aggressive shifts optimization requires loops, it breaks on switches
       flush_js_optimizer_queue()
-      final = shared.Building.eliminator(final) # aggressive shifts optimization introduces some new variables, remove ones that we can
+      # Again, seems broken.
+      #final = shared.Building.eliminator(final) # aggressive shifts optimization introduces some new variables, remove ones that we can
       if DEBUG: save_intermediate('eliminator')
 
   if closure:

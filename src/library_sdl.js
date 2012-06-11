@@ -751,6 +751,7 @@ var LibrarySDL = {
   },
 
   SDL_FillRect: function(surf, rect, color) {
+    assert(surf != 0);
     var surfData = SDL.surfaces[surf];
     assert(!surfData.locked); // but we could unlock and re-lock if we must..
     var r = SDL.loadRect(rect);
