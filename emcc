@@ -448,6 +448,7 @@ try:
   post_js = None
   minify_whitespace = None
   data_files = []
+  data_base = None
   compression = None
   ignore_dynamic_linking = False
   shell_path = shared.path_from_root('src', 'shell.html')
@@ -1055,7 +1056,6 @@ try:
             'basename': os.path.basename(filename),
             'finish': finish
       }
-        print dirname
       else:
         assert 0
 
