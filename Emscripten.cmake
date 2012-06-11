@@ -7,6 +7,8 @@
 # project correctly.
 #
 
+set(EMSCRIPTEN_ACTIVE true)
+
 set(CMAKE_C_COMPILER "$ENV{EMSCRIPTEN_ROOT}/emcc")
 set(CMAKE_C_FLAGS "-Wall -std=c89")
 set(CMAKE_C_FLAGS_DEBUG "-g")
